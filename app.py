@@ -2,7 +2,6 @@
 
 import json
 import os
-import secrets
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -18,7 +17,7 @@ RECIPES = {recipe["id"]: recipe for recipe in json.loads((ROOT / "recipes.json")
 PUBLIC_FILES = {"styles.css", "chat.css", "app.js", "config.js"}
 EXTRA_ORIGINS = [origin.strip().rstrip("/") for origin in os.getenv("FRONTEND_ORIGINS", "").split(",") if origin.strip()]
 CORS(app, resources={r"/api/.*": {"origins": EXTRA_ORIGINS}},
-     methods=["POST", "OPTIONS"], allow_headers=["Content-Type", "X-Chat-Password"])
+     methods=["POST", "OPTIONS"], allow_headers=["Content-Type"])
 
 INSTRUCTIONS = """
 You are the kitchen assistant for Stories at the Table, a food culture and home
@@ -60,7 +59,7 @@ def public_file(filename):
 @app.get("/health")
 def health():
     # Liveness only; no paid model request is made here.
-    return jsonify(status="ok", chat_configured=bool(os.getenv("OPENAI_API_KEY") and os.getenv("CHAT_PASSWORD")))
+    return jsonify(status="ok", chat_configured=bool(os.getenv("OPENAI_API_KEY")))
 
 
 @app.errorhandler(413)
@@ -70,13 +69,9 @@ def too_large(_error):
 
 @app.post("/api/chat")
 def chat():
-    password = os.getenv("CHAT_PASSWORD", "")
     api_key = os.getenv("OPENAI_API_KEY", "")
-    if not password or not api_key:
+    if not api_key:
         return failure("not_configured", 503)
-    provided = request.headers.get("X-Chat-Password", "")
-    if not secrets.compare_digest(provided.encode("utf-8"), password.encode("utf-8")):
-        return failure("unauthorized", 401)
 
     # Same-origin deployment is the default. Extra frontends require an explicit origin.
     origin = request.headers.get("Origin")

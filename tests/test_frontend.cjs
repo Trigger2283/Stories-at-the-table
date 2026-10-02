@@ -47,10 +47,7 @@ async function run() {
   assert(f.labels.every(label => typeof label.textContent === 'string'));
   assert(f.aria.every(label => typeof label.attributes['aria-label'] === 'string'));
   q('#chat-input').value='How do I cook this?';
-  await f.submit();
-  assert.equal(f.calls.length,0);
-  assert.equal(vm.runInContext('statusKey',f.context),'passwordRequired');
-  q('#chat-password').value='test-access';
+  assert(!html.includes('id="chat-password"'));
   f.context.location.protocol='file:';
   await f.submit();
   assert.equal(vm.runInContext('statusKey',f.context),'filePreview');
@@ -63,7 +60,7 @@ async function run() {
   const payload=JSON.parse(f.calls[0].options.body);
   assert.equal(payload.language,'en');
   assert.equal(payload.dish_id,'tomato-eggs');
-  assert.equal(f.calls[0].options.headers['X-Chat-Password'],'test-access');
+  assert.deepEqual(Object.keys(f.calls[0].options.headers),['Content-Type']);
   assert.equal(q('#chat-input').value,'');
   assert.equal(vm.runInContext('chatHistory.length',f.context),2);
   assert.equal(q('#chat-messages').children[1].textContent,'A real-shaped test reply.');
@@ -84,16 +81,14 @@ async function run() {
   assert.equal(vm.runInContext('chatHistory.length',f.context),4);
 
   // A failed request keeps the question, removes the pending bubble and adds no history.
-  f.context.fetch=async()=>({ok:false,json:async()=>({error:'unauthorized'})});
+  f.context.fetch=async()=>({ok:false,json:async()=>({error:'provider_rate_limit'})});
   q('#chat-input').value='Keep this question';
   const before=q('#chat-messages').children.length;
   await f.submit();
   assert.equal(q('#chat-input').value,'Keep this question');
-  assert.equal(q('#chat-password').value,'');
   assert.equal(q('#chat-messages').children.length,before);
   assert.equal(vm.runInContext('chatHistory.length',f.context),4);
-  assert.equal(vm.runInContext('statusKey',f.context),'unauthorized');
-  q('#chat-password').value='test-access';
+  assert.equal(vm.runInContext('statusKey',f.context),'provider_rate_limit');
   f.context.fetch=async()=>{throw new TypeError('Failed to fetch');};
   await f.submit();
   assert.equal(vm.runInContext('statusKey',f.context),'networkError');

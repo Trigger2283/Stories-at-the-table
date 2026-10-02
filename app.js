@@ -23,14 +23,14 @@ const translations = {
   }
 };
 Object.assign(translations.zh, {
-  newChat:'新对话',passwordLabel:'试用访问口令',passwordPlaceholder:'输入网站访问口令',contextGeneral:'当前：自由咨询',contextSelected:'当前菜谱：',
-  thinking:'正在准备回复…首次唤醒服务可能需要稍等。',passwordRequired:'请先输入网站访问口令。',filePreview:'请从 Flask 或 Render 的网址打开页面后聊天，不能直接使用本地文件预览。',
-  not_configured:'后端尚未配置，请在 Render 设置 OpenAI API Key 和访问口令。',unauthorized:'访问口令不正确，请重新输入。',origin_not_allowed:'当前网站地址未获允许，请检查后端的 FRONTEND_ORIGINS。',invalid_request:'请求格式不正确，请刷新页面后重试。',invalid_messages:'对话过长或格式不正确，请开始新对话。',message_too_long:'消息太长，请缩短后重试。',unknown_dish:'未找到当前菜谱，请刷新页面后重试。',provider_rate_limit:'AI 服务额度不足或请求过于频繁，请稍后重试或检查账户用量。',provider_unavailable:'AI 服务暂时无法连接，请稍后重试。',provider_error:'AI 服务调用失败，请检查后端的密钥和模型设置。',empty_reply:'没有收到有效回复，请重试。',incomplete_reply:'回复未能完成，请缩短问题后重试。',networkError:'无法连接聊天服务，请检查网络和后端地址后重试。',timeoutError:'等待回复超时，请稍后重试。',unexpectedError:'聊天服务暂时出错，请稍后重试。'
+  newChat:'新对话',contextGeneral:'当前：自由咨询',contextSelected:'当前菜谱：',
+  thinking:'正在准备回复…首次唤醒服务可能需要稍等。',filePreview:'请从 Flask 或 Render 的网址打开页面后聊天，不能直接使用本地文件预览。',
+  not_configured:'后端尚未配置，请在 Render 设置 OpenAI API Key。',origin_not_allowed:'当前网站地址未获允许，请检查后端的 FRONTEND_ORIGINS。',invalid_request:'请求格式不正确，请刷新页面后重试。',invalid_messages:'对话过长或格式不正确，请开始新对话。',message_too_long:'消息太长，请缩短后重试。',unknown_dish:'未找到当前菜谱，请刷新页面后重试。',provider_rate_limit:'AI 服务额度不足或请求过于频繁，请稍后重试或检查账户用量。',provider_unavailable:'AI 服务暂时无法连接，请稍后重试。',provider_error:'AI 服务调用失败，请检查后端的密钥和模型设置。',empty_reply:'没有收到有效回复，请重试。',incomplete_reply:'回复未能完成，请缩短问题后重试。',networkError:'无法连接聊天服务，请检查网络和后端地址后重试。',timeoutError:'等待回复超时，请稍后重试。',unexpectedError:'聊天服务暂时出错，请稍后重试。'
 });
 Object.assign(translations.en, {
-  newChat:'New chat',passwordLabel:'Trial access password',passwordPlaceholder:'Enter the website access password',contextGeneral:'General cooking questions',contextSelected:'Current recipe: ',
-  thinking:'Preparing your reply… The service may take a moment to wake up.',passwordRequired:'Please enter the website access password first.',filePreview:'Open the site through Flask or its Render URL to chat, rather than as a local file.',
-  not_configured:'The backend is not configured. Set the OpenAI API key and access password in Render.',unauthorized:'Incorrect access password. Please try again.',origin_not_allowed:'This website origin is not allowed. Check FRONTEND_ORIGINS on the backend.',invalid_request:'Invalid request. Refresh the page and try again.',invalid_messages:'The conversation is too long or invalid. Please start a new chat.',message_too_long:'The message is too long. Please shorten it.',unknown_dish:'The current recipe was not found. Refresh and try again.',provider_rate_limit:'The AI service is busy or its quota is exhausted. Try later or check account usage.',provider_unavailable:'The AI service is temporarily unreachable. Please try again.',provider_error:'The AI request failed. Check the backend API key and model settings.',empty_reply:'No valid reply was received. Please try again.',incomplete_reply:'The reply could not finish. Shorten your question and try again.',networkError:'Cannot reach the chat service. Check your network and backend URL.',timeoutError:'The reply timed out. Please try again shortly.',unexpectedError:'The chat service encountered an error. Please try again.'
+  newChat:'New chat',contextGeneral:'General cooking questions',contextSelected:'Current recipe: ',
+  thinking:'Preparing your reply… The service may take a moment to wake up.',filePreview:'Open the site through Flask or its Render URL to chat, rather than as a local file.',
+  not_configured:'The backend is not configured. Set the OpenAI API key in Render.',origin_not_allowed:'This website origin is not allowed. Check FRONTEND_ORIGINS on the backend.',invalid_request:'Invalid request. Refresh the page and try again.',invalid_messages:'The conversation is too long or invalid. Please start a new chat.',message_too_long:'The message is too long. Please shorten it.',unknown_dish:'The current recipe was not found. Refresh and try again.',provider_rate_limit:'The AI service is busy or its quota is exhausted. Try later or check account usage.',provider_unavailable:'The AI service is temporarily unreachable. Please try again.',provider_error:'The AI request failed. Check the backend API key and model settings.',empty_reply:'No valid reply was received. Please try again.',incomplete_reply:'The reply could not finish. Shorten your question and try again.',networkError:'Cannot reach the chat service. Check your network and backend URL.',timeoutError:'The reply timed out. Please try again shortly.',unexpectedError:'The chat service encountered an error. Please try again.'
 });
 const englishDishes = {
   'tomato-eggs':{name:'Tomato & egg stir-fry',region:'China · Home cooking',time:'About 15 minutes',description:'Sweet-tart tomatoes meet soft eggs: a kitchen practice built around familiar flavors.',story:'The story of a home-cooked dish can live in the small differences between families. Some prefer more sauce; others like their eggs a little more golden. This dish will be our starting point for exploring ingredients, family memories, and everyday meals.',ingredients:[{name:'Tomatoes',unit:'whole'},{name:'Eggs',unit:'whole'},{name:'Cooking oil',unit:'tbsp'},{name:'Salt',unit:'',note:'to taste'}],steps:['Wash and chop the tomatoes. Beat the eggs in a bowl.','Heat the oil over medium heat. Add the eggs, stir until set, and transfer to a plate.','Add the tomatoes and cook until softened and juicy. Add a splash of water if needed.','Return the eggs to the pan, season with salt, and stir until heated through.']},
@@ -98,7 +98,6 @@ function setSending(value) {
   sending = value;
   document.querySelector('#chat-form button').disabled = value;
   document.querySelector('#chat-input').readOnly = value;
-  document.querySelector('#chat-password').readOnly = value;
   document.querySelector('#new-chat').disabled = value;
   document.querySelector('#chat-messages').setAttribute('aria-busy',String(value));
   document.querySelectorAll('.suggestions button').forEach(button => {button.disabled = value;});
@@ -136,9 +135,6 @@ document.querySelector('#chat-form').addEventListener('submit', async event => {
   const text = input.value.trim();
   if(!text) return;
   if(text.length > 2000) {setStatus('message_too_long',true);return;}
-  const passwordInput = document.querySelector('#chat-password');
-  const password = passwordInput.value;
-  if(!password) {setStatus('passwordRequired',true);passwordInput.focus();return;}
   const base = (window.COOKING_STORY_CONFIG?.apiBaseUrl || '').replace(/\/+$/,'');
   if(location.protocol === 'file:' && !base) {setStatus('filePreview',true);return;}
   const requestMessages = requestHistory(text);
@@ -150,7 +146,7 @@ document.querySelector('#chat-form').addEventListener('submit', async event => {
   try {
     const response = await fetch(`${base}/api/chat`,{
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Chat-Password':password},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({messages:requestMessages,language,dish_id:currentDish?.id || null}),
       signal:controller.signal,
       credentials:'omit'
@@ -158,7 +154,7 @@ document.querySelector('#chat-form').addEventListener('submit', async event => {
     const body = await response.json().catch(() => null);
     if(!response.ok) {
       const code = body?.error;
-      const known = ['not_configured','unauthorized','origin_not_allowed','invalid_request','invalid_messages','message_too_long','unknown_dish','provider_rate_limit','provider_unavailable','provider_error','empty_reply','incomplete_reply'];
+      const known = ['not_configured','origin_not_allowed','invalid_request','invalid_messages','message_too_long','unknown_dish','provider_rate_limit','provider_unavailable','provider_error','empty_reply','incomplete_reply'];
       throw new Error(known.includes(code) ? code : 'unexpectedError');
     }
     if(typeof body?.reply !== 'string' || !body.reply.trim() || body.reply.length > 8000) throw new Error('empty_reply');
@@ -170,7 +166,6 @@ document.querySelector('#chat-form').addEventListener('submit', async event => {
     userMessage.remove();
     const key = error.name === 'AbortError' ? 'timeoutError' : (translations[language][error.message] ? error.message : 'networkError');
     setStatus(key,true);
-    if(key === 'unauthorized') passwordInput.value = '';
   } finally {
     clearTimeout(timeout);
     setSending(false);

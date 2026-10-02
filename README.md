@@ -8,7 +8,7 @@
 - 中英文切换和语言偏好记忆。
 - 实际聊天请求、最近五轮对话上下文、当前菜谱、等待状态、新对话。
 - 错误提示、失败时保留问题、禁止重复发送、请求超时。
-- 服务器读取 API Key；试用访问口令不写入浏览器存储。
+- 服务器读取 API Key；用户打开页面即可聊天，无需访问口令。
 
 故事是编辑方向示例，并非核实后的历史资料。助手知道这一点，不应将这些内容描述成已核实历史。当前没有联网搜索或购物功能。插画使用 emoji；Google Fonts 不可用时使用本地字体。
 
@@ -22,13 +22,13 @@ python -m venv .venv
 Copy-Item .env.example .env
 ```
 
-在本地 `.env` 中填写真实 `OPENAI_API_KEY` 和自己设置的 `CHAT_PASSWORD`。不要将真实密钥粘贴到聊天中或写入前端文件。
+在本地 `.env` 中填写真实 `OPENAI_API_KEY`。不要将真实密钥粘贴到聊天中或写入前端文件。
 
 ```powershell
 .\.venv\Scripts\python.exe app.py
 ```
 
-访问 `http://127.0.0.1:5001`，展开厨房助手，输入 `CHAT_PASSWORD` 的值并发送问题。这是网站试用口令，不是 OpenAI API Key。
+访问 `http://127.0.0.1:5001`，展开厨房助手即可发送问题。
 
 双击 `index.html` 仍可查看页面，但聊天需要通过 Flask/Render 的网址打开。单独运行 `python -m http.server` 不会提供聊天接口。
 
@@ -55,21 +55,24 @@ Copy-Item .env.example .env
 | --- | --- |
 | `OPENAI_API_KEY` | 你的 OpenAI 项目 API Key，账户需有可用额度 |
 | `OPENAI_MODEL` | 默认 `gpt-4.1-mini`；也可填写账户可使用的其他 Responses API 模型 |
-| `CHAT_PASSWORD` | 自己设置的试用访问口令 |
 
 `PORT` 由 Render 提供，不要复制 `.env.example` 中的本地端口。默认同一服务提供前端和后端，不需要填写 `FRONTEND_ORIGINS`。
 
-`render.yaml` 也可用于 Blueprint 部署，适用于将本目录内容作为新仓库根目录的情况。密钥和口令需要在 Render 中填写。
+`render.yaml` 也可用于 Blueprint 部署，适用于将本目录内容作为新仓库根目录的情况。API Key 需要在 Render 中填写。
 
 ## 部署后的检查
 
 1. 打开 Render 分配的服务网址，应看到双语首页。
-2. 访问 `/health`：`status: ok` 表示服务存活；`chat_configured: true` 只表示已配置密钥和口令，不验证密钥或额度。
-3. 输入试用访问口令，问一个简单问题，确认真实 AI 回复。
+2. 访问 `/health`：`status: ok` 表示服务存活；`chat_configured: true` 只表示已配置密钥，不验证密钥或额度。
+3. 打开厨房助手，问一个简单问题，确认真实 AI 回复。
 4. 打开番茄炒蛋，点击“问问这道菜的做法”，询问鸡蛋用量，再追问替代食材。
 5. 切换 English 并测试英文问题。
 
-Render 免费服务唤醒可能需要等待；前端显示等待状态。当前试用口令不是完整的公开用户账户体系。
+Render 免费服务唤醒可能需要等待；前端显示等待状态。聊天公开开放，所有聊天请求的 API 费用由网站配置的 OpenAI 账户承担。
+
+## 从原来的口令版本更新
+
+在 GitHub 上传新版文件并覆盖同名文件，然后提交。前端 `index.html`、`app.js` 与后端 `app.py` 必须一起更新。Render 环境变量只需 `OPENAI_API_KEY` 和 `OPENAI_MODEL`，可以删除旧的 `CHAT_PASSWORD`。如果尚未创建 Render 服务，先上传更新再部署；如果已经创建，使用最新提交重新部署。
 
 ## 以后将前端放到 GitHub Pages
 

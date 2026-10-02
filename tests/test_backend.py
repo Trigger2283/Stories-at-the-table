@@ -14,7 +14,7 @@ import app as backend
 
 class ChatTests(unittest.TestCase):
     def setUp(self):
-        environment = patch.dict(os.environ, {"OPENAI_API_KEY": "test-only-not-real", "CHAT_PASSWORD": "test-access", "OPENAI_MODEL": "gpt-4.1-mini"})
+        environment = patch.dict(os.environ, {"OPENAI_API_KEY": "test-only-not-real", "CHAT_PASSWORD": "", "OPENAI_MODEL": "gpt-4.1-mini"})
         environment.start()
         self.addCleanup(environment.stop)
         self.client = backend.app.test_client()
@@ -25,10 +25,10 @@ class ChatTests(unittest.TestCase):
         self.factory.return_value.__enter__.return_value = self.mock_client
         self.mock_client.responses.create.return_value = SimpleNamespace(output_text="Try cooking the tomatoes first.", status="completed")
 
-    def post(self, body=None, password="test-access", **headers):
+    def post(self, body=None, **headers):
         if body is None:
             body = {"language": "en", "dish_id": "tomato-eggs", "messages": [{"role": "user", "content": "Can I make this less watery?"}]}
-        return self.client.post("/api/chat", json=body, headers={"X-Chat-Password": password, **headers})
+        return self.client.post("/api/chat", json=body, headers=headers)
 
     def test_site_assets_and_private_file_isolation(self):
         for path in ["/", "/app.js", "/styles.css", "/chat.css", "/config.js"]:
@@ -50,9 +50,10 @@ class ChatTests(unittest.TestCase):
         self.assertEqual(response.json["error"], "not_configured")
         self.factory.assert_not_called()
 
-    def test_wrong_password(self):
-        self.assertEqual(self.post(password="wrong").status_code, 401)
-        self.factory.assert_not_called()
+    def test_public_chat_needs_no_password_even_if_old_environment_has_one(self):
+        self.assertEqual(self.post().status_code, 200)
+        with patch.dict(os.environ, {"CHAT_PASSWORD": "leftover-old-setting"}):
+            self.assertEqual(self.post().status_code, 200)
 
     def test_origin_validation(self):
         self.assertEqual(self.post(Origin="https://unrelated.example").status_code, 403)
