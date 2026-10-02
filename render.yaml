@@ -1,0 +1,16 @@
+# Use when cooking-story's contents are the root of the new repository.
+services:
+  - type: web
+    name: stories-at-the-table
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 90
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: CHAT_PASSWORD
+        sync: false
