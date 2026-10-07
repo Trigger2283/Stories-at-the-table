@@ -9,16 +9,31 @@ from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS
 from openai import APIConnectionError, APIStatusError, OpenAI, RateLimitError
 
+from mealdb import MealDBUnavailable, fetch_meals, lookup_meal
+
+# 1. 应用配置与可信菜谱目录。
 ROOT = Path(__file__).resolve().parent
 load_dotenv(ROOT / ".env", override=False)
 app = Flask(__name__, static_folder=None)
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1024
-RECIPES = {recipe["id"]: recipe for recipe in json.loads((ROOT / "recipes.json").read_text(encoding="utf-8"))}
-PUBLIC_FILES = {"styles.css", "chat.css", "app.js", "config.js"}
-EXTRA_ORIGINS = [origin.strip().rstrip("/") for origin in os.getenv("FRONTEND_ORIGINS", "").split(",") if origin.strip()]
-CORS(app, resources={r"/api/.*": {"origins": EXTRA_ORIGINS}},
-     methods=["POST", "OPTIONS"], allow_headers=["Content-Type"])
+RECIPES = {
+    recipe["id"]: recipe
+    for recipe in json.loads((ROOT / "recipes.json").read_text(encoding="utf-8"))
+}
+PUBLIC_FILES = {"styles.css", "chat.css", "app.js", "config.js", "mealdb.js"}
+EXTRA_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
+    if origin.strip()
+]
+CORS(
+    app,
+    resources={r"/api/.*": {"origins": EXTRA_ORIGINS}},
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
 
+# 2. 助手角色与回答规则；模型名称从 Render 环境变量读取。
 INSTRUCTIONS = """
 You are the kitchen assistant for Stories at the Table, a food culture and home
 cooking website. Be warm, practical, and concise. Help with cooking steps,
@@ -44,6 +59,7 @@ def failure(code, status):
     return jsonify(error=code), status
 
 
+# 3. 网页、公开资源和健康检查。
 @app.get("/")
 def index():
     return send_from_directory(ROOT, "index.html")
@@ -67,6 +83,29 @@ def too_large(_error):
     return failure("message_too_long", 413)
 
 
+# 4. 聊天接口：校验请求 → 添加菜谱上下文 → 调用模型 → 返回纯文本。
+@app.get("/api/recipes")
+def search_recipes():
+    query = request.args.get("q", "").strip()
+    if not 2 <= len(query) <= 80:
+        return failure("invalid_search", 400)
+    try:
+        return jsonify(recipes=fetch_meals("search.php", {"s": query}))
+    except MealDBUnavailable:
+        return failure("recipe_provider_unavailable", 502)
+
+
+@app.get("/api/recipes/<dish_id>")
+def recipe_detail(dish_id):
+    try:
+        meal = lookup_meal(dish_id)
+    except MealDBUnavailable:
+        return failure("recipe_provider_unavailable", 502)
+    if meal is None:
+        return failure("unknown_dish", 404)
+    return jsonify(recipe=meal)
+
+
 @app.post("/api/chat")
 def chat():
     api_key = os.getenv("OPENAI_API_KEY", "")
@@ -80,12 +119,23 @@ def chat():
     if origin and origin not in {local_origin, same_host_https, *EXTRA_ORIGINS}:
         return failure("origin_not_allowed", 403)
 
+    # 校验语言、菜谱 ID，以及交替排列的 user / assistant 消息。
     body = request.get_json(silent=True)
-    if not isinstance(body, dict) or not isinstance(body.get("language"), str) or body["language"] not in {"zh", "en"}:
+    if (
+        not isinstance(body, dict)
+        or not isinstance(body.get("language"), str)
+        or body["language"] not in {"zh", "en"}
+    ):
         return failure("invalid_request", 400)
     dish_id = body.get("dish_id")
+    external_recipe = None
     if dish_id is not None and (not isinstance(dish_id, str) or dish_id not in RECIPES):
-        return failure("unknown_dish", 400)
+        try:
+            external_recipe = lookup_meal(dish_id)
+        except MealDBUnavailable:
+            return failure("recipe_provider_unavailable", 502)
+        if external_recipe is None:
+            return failure("unknown_dish", 400)
     messages = body.get("messages")
     if not isinstance(messages, list) or not 1 <= len(messages) <= 11:
         return failure("invalid_messages", 400)
@@ -102,18 +152,22 @@ def chat():
     if clean[-1]["role"] != "user" or sum(len(m["content"]) for m in clean) > 24000:
         return failure("invalid_messages", 400)
 
+    # 客户端只提供菜谱 ID，内容取自服务器目录。
     language = body["language"]
     context = {
         "interface_language": "Chinese" if language == "zh" else "English",
         "selected_dish_id": dish_id,
         "catalogue_is_editorial_sample": True,
         "recipes": [recipe[language] for recipe in RECIPES.values()],
+        "selected_external_recipe": external_recipe,
     }
     try:
         with OpenAI(api_key=api_key, timeout=45.0, max_retries=0) as client:
             response = client.responses.create(
                 model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
-                instructions=INSTRUCTIONS + "\nApplication catalogue:\n" + json.dumps(context, ensure_ascii=False),
+                instructions=INSTRUCTIONS
+                + "\nApplication catalogue:\n"
+                + json.dumps(context, ensure_ascii=False),
                 input=clean,
                 max_output_tokens=1200,
                 store=False,

@@ -4,6 +4,22 @@
 
 ## 目前完成
 
+### TheMealDB 菜谱接入
+
+首页新增独立的英文菜谱搜索区，搜索 chicken、pasta 或 Arrabiata，最多显示 24 条结果。点击 View recipe 查看图片、食材和原始步骤。Ask about this recipe 和 Translate this recipe 会打开聊天并填入问题，用户点击发送后才调用模型、产生费用。
+
+界面默认英文，暂时隐藏语言切换；原中文示例数据保留。外部菜谱没有历史故事、可靠的耗时或份数时不自行补造。
+
+- `mealdb.py`：固定地址访问 TheMealDB，10 秒上游超时，15 分钟内存缓存（最多 128 项，重启清空，不是数据库）。
+- `mealdb.js`：搜索与详情 UI；外部文本通过 textContent 展示。
+- `GET /api/recipes?q=pasta`：按英文菜名搜索。
+- `GET /api/recipes/mealdb-52771`：按 ID 查询。
+- 聊天只提交菜谱 ID，后端重新获取可信来源的菜谱作为上下文，不接受前端自编菜谱。
+
+使用官方教育/开发测试 Key `1`，无需新增环境变量或依赖。适用于当前作业；正式商业发布前重新核对 [TheMealDB 使用说明](https://www.themealdb.com/api.php)。来源链接显示在详情中。
+
+部署时请同时上传新文件 `mealdb.py` 和 `mealdb.js`，以及更新后的 `app.py`、`app.js`、`index.html`、`styles.css`。Render 构建、启动命令和 OpenAI 环境变量无需更改。必须通过 Flask/Render 网址访问，不能双击 HTML 使用搜索。
+
 - 三道示例菜、分类筛选、故事和菜谱详情。
 - 中英文切换和语言偏好记忆。
 - 实际聊天请求、最近五轮对话上下文、当前菜谱、等待状态、新对话。
@@ -11,6 +27,30 @@
 - 服务器读取 API Key；用户打开页面即可聊天，无需访问口令。
 
 故事是编辑方向示例，并非核实后的历史资料。助手知道这一点，不应将这些内容描述成已核实历史。当前没有联网搜索或购物功能。插画使用 emoji；Google Fonts 不可用时使用本地字体。
+
+## 人工维护与代码格式
+
+| 想修改的内容 | 对应文件 |
+| --- | --- |
+| 页面结构、导航、聊天入口 | `index.html` |
+| 主题颜色、卡片、移动端布局 | `styles.css` |
+| 聊天面板与等待、错误提示样式 | `chat.css` |
+| 菜谱展示、双语文案、筛选和聊天请求 | `app.js`，按编号注释分区 |
+| 助手性格、回答规则、后端校验 | `app.py` 的 `INSTRUCTIONS` 和 `chat()` |
+| 服务器使用的中英文菜谱目录 | `recipes.json`，修改时与 `app.js` 保持一致 |
+| 分离部署时的后端地址 | `config.js` |
+| 实际使用的模型和 API Key | Render 的 Environment；本地为 `.env` |
+
+HTML、CSS 和 JavaScript 使用两空格缩进，Python 使用四空格缩进。各个菜谱字段、样式属性和控制流程展开书写；动态生成的卡片和详情 HTML 使用多行模板，方便逐段修改。
+
+`.editorconfig` 统一缩进、UTF-8 和换行。`.prettierrc.json` 用于前端格式化，`ruff.toml` 用于 Python 格式化；它们仅用于开发，不改变 Render 的运行方式。编辑器中可使用 Prettier 和 Ruff 的格式化功能，或安装工具后在本目录运行：
+
+```powershell
+npx prettier --write index.html app.js config.js styles.css chat.css recipes.json tests/test_frontend.cjs
+ruff format app.py tests/test_backend.py
+```
+
+本次整理保留现有文件入口和接口。上传整理版后，Render 的构建命令、启动命令以及模型环境变量均可沿用。
 
 ## 本地运行
 

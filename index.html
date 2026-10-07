@@ -1,38 +1,161 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>一餐一故事 · 厨房里的小旅行</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="chat.css">
-  <script src="config.js" defer></script>
-  <script src="app.js" defer></script>
-</head>
-<body>
-  <header class="site-header"><a class="brand" href="#"><span class="brand-name" data-i18n="brand">一餐一故事</span><span>STORIES AT THE TABLE</span></a><div class="header-actions"><a class="nav-link" href="#explore" data-i18n="explore">探索菜肴 ↗</a><div class="language-switch" role="group" data-i18n-aria="languageLabel" aria-label="选择语言"><button data-language="zh" aria-pressed="true">中文</button><button data-language="en" aria-pressed="false">English</button></div></div></header>
-  <main>
-    <section class="hero">
-      <div><p class="eyebrow" data-i18n="heroEyebrow">从一道菜，认识一种生活</p><h1 data-i18n="heroTitle">好故事，<br>也可以端上桌。</h1><p class="intro" data-i18n="heroIntro">探索食物背后的文化，学着做一顿喜欢的饭。<br>从厨房出发，走得比想象中更远。</p><a class="button" href="#explore" data-i18n="inspiration">寻找今天的灵感 ↓</a></div>
-      <div class="hero-art" aria-hidden="true"><div class="plate">🍅<span>🥚</span></div><div class="art-note" data-i18n="artNote">这一餐，从熟悉的味道开始。</div></div>
-    </section>
-    <section id="explore" class="explore">
-      <div class="section-heading"><div><p class="eyebrow" data-i18n="collectionEyebrow">THE RECIPE COLLECTION</p><h2 data-i18n="collectionTitle">今天，想尝尝哪里的故事？</h2></div><span class="collection-note" data-i18n="collectionNote">首期 · 3 道厨房灵感</span></div>
-      <div class="filters" role="group" data-i18n-aria="filterLabel" aria-label="筛选菜肴"><button class="filter active" data-filter="all" data-i18n="all" aria-pressed="true">全部菜肴</button><button class="filter" data-filter="家常" data-i18n="home" aria-pressed="false">家常味道</button><button class="filter" data-filter="轻食" data-i18n="easy" aria-pressed="false">轻松一餐</button><button class="filter" data-filter="慢炖" data-i18n="slow" aria-pressed="false">慢慢烹调</button></div>
-      <div id="dish-grid" class="dish-grid"></div>
-    </section>
-    <section class="closing"><p class="eyebrow" data-i18n="closingEyebrow">A LITTLE HELP IN THE KITCHEN</p><h2 data-i18n="closingTitle">做饭时有疑问？随时问问。</h2><p data-i18n="closingIntro">从理解一个步骤，到替换一种食材，厨房助手会陪你一起琢磨。</p><button class="text-button" id="inline-chat" data-i18n="openChat">打开厨房助手 ↗</button></section>
-  </main>
-  <footer><span class="footer-brand" data-i18n="brand">一餐一故事</span><span data-i18n="footerNote">第一阶段原型 · 故事与菜谱为示例内容，历史资料待核实补充</span></footer>
-  <dialog id="dish-dialog" aria-labelledby="detail-title"><button class="close" id="close-detail" data-i18n-aria="closeRecipe" aria-label="关闭菜谱">×</button><div id="dish-detail"></div></dialog>
-  <button id="chat-toggle" class="chat-toggle" aria-expanded="false" aria-controls="chat-panel" data-i18n="chatToggle">✦ 厨房助手</button>
-  <aside id="chat-panel" class="chat-panel" aria-labelledby="chat-title" hidden>
-    <div class="chat-header"><div><h2 id="chat-title" data-i18n="assistantTitle">厨房助手</h2><span data-i18n="chatPreview">AI 做饭与食物文化助手</span></div><button id="close-chat" data-i18n-aria="closeChat" aria-label="关闭厨房助手">×</button></div>
-    <div class="chat-context"><span id="chat-context"></span><button id="new-chat" data-i18n="newChat">新对话</button></div>
-    <div id="chat-messages" class="chat-messages" role="log" aria-live="polite"><p class="message assistant" data-i18n="welcome">欢迎来到厨房。你可以问我做法、食材替换，或聊聊一道菜的故事。</p></div>
-    <div class="suggestions"><button data-i18n="suggestionOne">没有番茄怎么办？</button><button data-i18n="suggestionTwo">给我推荐一道快手菜</button></div>
-    <p id="chat-status" class="chat-status" role="status" aria-live="polite" hidden></p>
-    <form id="chat-form"><label class="sr-only" for="chat-input" data-i18n="inputLabel">向厨房助手提问</label><input id="chat-input" placeholder="输入你的做饭问题…" maxlength="2000" required><button type="submit" data-i18n-aria="send" aria-label="发送问题">↑</button></form>
-  </aside>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>一餐一故事 · 厨房里的小旅行</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="chat.css" />
+    <script src="config.js" defer></script>
+    <script src="app.js" defer></script>
+    <script src="mealdb.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#">
+        <span class="brand-name" data-i18n="brand">一餐一故事</span>
+        <span>STORIES AT THE TABLE</span>
+      </a>
+      <div class="header-actions">
+        <a class="nav-link" href="#explore" data-i18n="explore">探索菜肴 ↗</a>
+        <div
+          class="language-switch"
+          hidden
+          role="group"
+          data-i18n-aria="languageLabel"
+          aria-label="选择语言"
+        >
+          <button data-language="zh" aria-pressed="true">中文</button>
+          <button data-language="en" aria-pressed="false">English</button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow" data-i18n="heroEyebrow">从一道菜，认识一种生活</p>
+          <h1 data-i18n="heroTitle">
+            好故事，
+            <br />
+            也可以端上桌。
+          </h1>
+          <p class="intro" data-i18n="heroIntro">
+            探索食物背后的文化，学着做一顿喜欢的饭。
+            <br />
+            从厨房出发，走得比想象中更远。
+          </p>
+          <a class="button" href="#explore" data-i18n="inspiration">寻找今天的灵感 ↓</a>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="plate">
+            🍅
+            <span>🥚</span>
+          </div>
+          <div class="art-note" data-i18n="artNote">这一餐，从熟悉的味道开始。</div>
+        </div>
+      </section>
+      <section id="explore" class="explore">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" data-i18n="collectionEyebrow">THE RECIPE COLLECTION</p>
+            <h2 data-i18n="collectionTitle">今天，想尝尝哪里的故事？</h2>
+          </div>
+          <span class="collection-note" data-i18n="collectionNote">首期 · 3 道厨房灵感</span>
+        </div>
+        <div class="filters" role="group" data-i18n-aria="filterLabel" aria-label="筛选菜肴">
+          <button class="filter active" data-filter="all" data-i18n="all" aria-pressed="true">
+            全部菜肴
+          </button>
+          <button class="filter" data-filter="家常" data-i18n="home" aria-pressed="false">
+            家常味道
+          </button>
+          <button class="filter" data-filter="轻食" data-i18n="easy" aria-pressed="false">
+            轻松一餐
+          </button>
+          <button class="filter" data-filter="慢炖" data-i18n="slow" aria-pressed="false">
+            慢慢烹调
+          </button>
+        </div>
+        <div id="dish-grid" class="dish-grid"></div>
+        <section class="recipe-search" aria-labelledby="recipe-search-title">
+          <h2 id="recipe-search-title">Explore recipes from TheMealDB</h2>
+          <p>Search by an English dish name, such as chicken, pasta or Arrabiata.</p>
+          <form id="recipe-search-form">
+            <label for="recipe-search-input">Recipe name</label>
+            <input
+              id="recipe-search-input"
+              type="search"
+              minlength="2"
+              maxlength="80"
+              required
+              placeholder="Try chicken"
+            />
+            <button class="button" type="submit">Search recipes</button>
+          </form>
+          <p id="recipe-search-status" role="status" aria-live="polite"></p>
+          <div id="recipe-results" class="dish-grid"></div>
+          <p>
+            Recipe data and photos:
+            <a href="https://www.themealdb.com" target="_blank" rel="noopener noreferrer">
+              TheMealDB
+            </a>
+            . These recipes do not include verified food history.
+          </p>
+        </section>
+      </section>
+      <section class="closing">
+        <p class="eyebrow" data-i18n="closingEyebrow">A LITTLE HELP IN THE KITCHEN</p>
+        <h2 data-i18n="closingTitle">做饭时有疑问？随时问问。</h2>
+        <p data-i18n="closingIntro">从理解一个步骤，到替换一种食材，厨房助手会陪你一起琢磨。</p>
+        <button class="text-button" id="inline-chat" data-i18n="openChat">打开厨房助手 ↗</button>
+      </section>
+    </main>
+    <footer>
+      <span class="footer-brand" data-i18n="brand">一餐一故事</span>
+      <span data-i18n="footerNote">第一阶段原型 · 故事与菜谱为示例内容，历史资料待核实补充</span>
+    </footer>
+    <dialog id="dish-dialog" aria-labelledby="detail-title">
+      <button class="close" id="close-detail" data-i18n-aria="closeRecipe" aria-label="关闭菜谱">
+        ×
+      </button>
+      <div id="dish-detail"></div>
+    </dialog>
+    <button
+      id="chat-toggle"
+      class="chat-toggle"
+      aria-expanded="false"
+      aria-controls="chat-panel"
+      data-i18n="chatToggle"
+    >
+      ✦ 厨房助手
+    </button>
+    <aside id="chat-panel" class="chat-panel" aria-labelledby="chat-title" hidden>
+      <div class="chat-header">
+        <div>
+          <h2 id="chat-title" data-i18n="assistantTitle">厨房助手</h2>
+          <span data-i18n="chatPreview">AI 做饭与食物文化助手</span>
+        </div>
+        <button id="close-chat" data-i18n-aria="closeChat" aria-label="关闭厨房助手">×</button>
+      </div>
+      <div class="chat-context">
+        <span id="chat-context"></span>
+        <button id="new-chat" data-i18n="newChat">新对话</button>
+      </div>
+      <div id="chat-messages" class="chat-messages" role="log" aria-live="polite">
+        <p class="message assistant" data-i18n="welcome">
+          欢迎来到厨房。你可以问我做法、食材替换，或聊聊一道菜的故事。
+        </p>
+      </div>
+      <div class="suggestions">
+        <button data-i18n="suggestionOne">没有番茄怎么办？</button>
+        <button data-i18n="suggestionTwo">给我推荐一道快手菜</button>
+      </div>
+      <p id="chat-status" class="chat-status" role="status" aria-live="polite" hidden></p>
+      <form id="chat-form">
+        <label class="sr-only" for="chat-input" data-i18n="inputLabel">向厨房助手提问</label>
+        <input id="chat-input" placeholder="输入你的做饭问题…" maxlength="2000" required />
+        <button type="submit" data-i18n-aria="send" aria-label="发送问题">↑</button>
+      </form>
+    </aside>
+  </body>
 </html>

@@ -1,8 +1,53 @@
-.chat-context{padding:9px 16px;color:var(--muted);font-size:11px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.chat-context button{border:0;background:transparent;color:var(--green);padding:3px 0;font-size:11px}
-.chat-status{margin:0;padding:0 16px 10px;color:var(--muted);font-size:12px;line-height:1.5}
-.chat-status.error{color:#9b3927}
-.message{white-space:pre-wrap}
-#chat-form button:disabled,.suggestions button:disabled,.chat-context button:disabled{opacity:.5;cursor:wait}
-.chat-messages{height:230px;max-height:30vh}
-@media(max-height:650px){.chat-panel{max-height:calc(100dvh - 100px);overflow:auto}.chat-messages{height:145px}}
+/* 当前菜谱与新对话入口。 */
+.chat-context {
+  padding: 9px 16px;
+  color: var(--muted);
+  font-size: 11px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.chat-context button {
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  padding: 3px 0;
+  font-size: 11px;
+}
+/* 等待、错误状态和消息正文。 */
+.chat-status {
+  margin: 0;
+  padding: 0 16px 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.chat-status.error {
+  color: #9b3927;
+}
+.message {
+  white-space: pre-wrap;
+}
+#chat-form button:disabled,
+.suggestions button:disabled,
+.chat-context button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.chat-messages {
+  height: 230px;
+  max-height: 30vh;
+}
+/* 矮屏幕允许滚动面板，避免输入区超出视口。 */
+@media (max-height: 650px) {
+  .chat-panel {
+    max-height: calc(100dvh - 100px);
+    overflow: auto;
+  }
+  .chat-messages {
+    height: 145px;
+  }
+}
