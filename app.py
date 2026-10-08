@@ -9,6 +9,7 @@ from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS
 from openai import APIConnectionError, APIStatusError, OpenAI, RateLimitError
 
+from fridge_match import match_recipes
 from mealdb import MealDBUnavailable, fetch_meals, lookup_meal
 
 # 1. 应用配置与可信菜谱目录。
@@ -104,6 +105,20 @@ def recipe_detail(dish_id):
     if meal is None:
         return failure("unknown_dish", 404)
     return jsonify(recipe=meal)
+
+
+@app.post("/api/recipes/match")
+def match_fridge():
+    body = request.get_json(silent=True)
+    names = body.get("ingredients") if isinstance(body, dict) else None
+    if not isinstance(names, list) or not 1 <= len(names) <= 100:
+        return failure("invalid_ingredients", 400)
+    if any(not isinstance(name, str) or not 1 <= len(name.strip()) <= 60 for name in names):
+        return failure("invalid_ingredients", 400)
+    try:
+        return jsonify(match_recipes([name.strip() for name in names]))
+    except MealDBUnavailable:
+        return failure("recipe_provider_unavailable", 502)
 
 
 @app.post("/api/chat")

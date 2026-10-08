@@ -11,6 +11,11 @@
   let ingredients = [];
   let storageWarning = '';
   let editingKey = null;
+  const matchButton = document.querySelector('#fridge-match');
+  const matchStatus = document.querySelector('#fridge-match-status');
+  const matchResults = document.querySelector('#fridge-match-results');
+  let inventoryRevision = 0;
+  let matching = false;
 
   const normalize = (value) => value.normalize('NFKC').trim().replace(/\s+/g, ' ');
   const nameKey = (value) => normalize(value).toLowerCase();
@@ -56,6 +61,11 @@
   }
 
   function render() {
+    inventoryRevision += 1;
+    matchResults.replaceChildren();
+    matchStatus.textContent = matching
+      ? 'Your fridge changed. Search again when the current request finishes.'
+      : '';
     list.replaceChildren();
     document.querySelector('#fridge-empty').hidden = ingredients.length !== 0;
     ingredients.forEach((ingredient) => {
@@ -137,6 +147,91 @@
   }
   render();
   announce();
+
+  function showMatch(recipe) {
+    const card = mealElement('article', '', 'dish-card');
+    if (recipe.image) card.append(mealImage(recipe));
+    const content = mealElement('div', '', 'card-body');
+    content.append(
+      mealElement('p', [recipe.region, recipe.category].filter(Boolean).join(' · '), 'meta'),
+      mealElement('h3', recipe.name),
+      mealElement(
+        'p',
+        `${recipe.have.length} ingredient names matched · ${recipe.missing.length} missing`,
+        'match-summary',
+      ),
+      mealElement('p', `You have: ${recipe.have.join(', ')}`, 'match-have'),
+      mealElement(
+        'p',
+        recipe.missing.length
+          ? `Still needed: ${recipe.missing.join(', ')}`
+          : 'All ingredient names matched. Check quantities before cooking.',
+        'match-missing',
+      ),
+    );
+    const view = mealElement('button', 'View recipe ↗', 'text-button');
+    view.type = 'button';
+    view.addEventListener('click', () => {
+      currentDish = recipe;
+      renderChatContext();
+      renderDetail();
+      detailDialog.showModal();
+    });
+    content.append(view);
+    card.append(content);
+    matchResults.append(card);
+  }
+
+  matchButton.addEventListener('click', async () => {
+    if (matching) return;
+    if (!ingredients.length) {
+      matchStatus.textContent = 'Add at least one ingredient to your fridge first.';
+      return;
+    }
+    const base = (window.COOKING_STORY_CONFIG?.apiBaseUrl || '').replace(/\/+$/, '');
+    if (location.protocol === 'file:' && !base) {
+      matchStatus.textContent = 'Open the site through Flask or its Render URL to find recipes.';
+      return;
+    }
+    matching = true;
+    matchButton.disabled = true;
+    const revision = inventoryRevision;
+    matchResults.replaceChildren();
+    matchResults.setAttribute('aria-busy', 'true');
+    matchStatus.textContent = 'Finding recipes and checking their ingredients…';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 70000);
+    try {
+      const response = await fetch(`${base}/api/recipes/match`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients: ingredients.map((item) => item.name) }),
+        signal: controller.signal,
+        credentials: 'omit',
+      });
+      if (!response.ok) throw new Error('match_failed');
+      const body = await response.json();
+      if (!Array.isArray(body.recipes) || !Array.isArray(body.discovery_ingredients))
+        throw new Error('invalid_results');
+      if (revision !== inventoryRevision) return;
+      body.recipes.forEach(showMatch);
+      const summary = body.recipes.length
+        ? `${body.recipes.length} suggestions, sorted by fewest missing ingredients.`
+        : 'No matches found in this limited search. Try more specific English ingredient names.';
+      matchStatus.textContent = `${summary} Discovery used: ${body.discovery_ingredients.join(', ')}. Up to the first 5 distinct fridge ingredients discover candidates; all fridge ingredients are checked against up to 12 recipes. This is not an exhaustive search.${body.partial ? ' Some requests failed or timed out; results are partial.' : ''}`;
+    } catch (error) {
+      if (revision === inventoryRevision)
+        matchStatus.textContent =
+          error.name === 'AbortError'
+            ? 'Matching timed out. Please try again.'
+            : 'Recipe matching is temporarily unavailable. Please try again.';
+    } finally {
+      clearTimeout(timeout);
+      matching = false;
+      matchButton.disabled = false;
+      matchResults.setAttribute('aria-busy', 'false');
+    }
+  });
 
   // Reflect changes from another tab without writing them back in a loop.
   window.addEventListener('storage', (event) => {

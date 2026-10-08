@@ -96,10 +96,20 @@
           <p id="fridge-status" role="status" aria-live="polite"></p>
           <p id="fridge-empty">Your fridge is empty. Add your first ingredient above.</p>
           <ul id="fridge-list" aria-label="Saved ingredients"></ul>
+          <button type="button" id="fridge-match" class="button">
+            Find recipes with my ingredients
+          </button>
+          <p id="fridge-match-status" role="status" aria-live="polite"></p>
+          <p class="fridge-note">
+            Matches ingredient names only, not quantities. Every missing ingredient is listed,
+            including salt and oil. Similar cuts or types are not automatically treated as
+            substitutes.
+          </p>
+          <div id="fridge-match-results" class="dish-grid"></div>
           <p class="fridge-note">
             Saved only in this browser on this website. Clearing site data removes your fridge;
             private browsing may not retain it. Update amounts manually after cooking. Recipe
-            matching is coming next.
+            matches compare names, not available quantities.
           </p>
         </section>
         <section class="recipe-search" aria-labelledby="recipe-search-title">

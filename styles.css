@@ -353,6 +353,24 @@ footer span {
   color: var(--muted);
 }
 /* 5. 菜谱详情弹窗。 */
+.match-summary {
+  font-weight: 600;
+}
+.match-have {
+  color: #385440;
+  overflow-wrap: anywhere;
+}
+.match-missing {
+  color: #8a411f;
+  overflow-wrap: anywhere;
+}
+#fridge-match-status {
+  line-height: 1.7;
+}
+#fridge-match:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
 .fridge {
   margin-top: 3rem;
   padding: 24px;

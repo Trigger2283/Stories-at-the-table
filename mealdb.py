@@ -62,7 +62,7 @@ def normalize_meal(meal):
     }
 
 
-def fetch_meals(endpoint, params):
+def fetch_meals(endpoint, params, timeout=10):
     key = (endpoint, tuple(sorted(params.items())))
     with _lock:
         entry = _cache.get(key)
@@ -74,7 +74,7 @@ def fetch_meals(endpoint, params):
         headers={"User-Agent": "StoriesAtTheTable/1.0", "Accept": "application/json"},
     )
     try:
-        with urlopen(req, timeout=10) as response:
+        with urlopen(req, timeout=timeout) as response:
             payload = response.read(2_000_001)
         if len(payload) > 2_000_000:
             raise MealDBUnavailable()

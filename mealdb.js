@@ -39,6 +39,23 @@ function renderExternalDetail(recipe) {
   detail.append(
     mealElement('p', 'Food history is not provided by this recipe source.', 'sample-note'),
   );
+  if (Array.isArray(recipe.have) && Array.isArray(recipe.missing)) {
+    detail.append(
+      mealElement('p', `You have: ${recipe.have.join(', ')}`, 'match-have'),
+      mealElement(
+        'p',
+        recipe.missing.length
+          ? `Still needed: ${recipe.missing.join(', ')}`
+          : 'All ingredient names matched.',
+        'match-missing',
+      ),
+      mealElement(
+        'p',
+        'This is a snapshot from your last fridge search. Quantities were not checked.',
+        'fridge-note',
+      ),
+    );
+  }
   detail.append(mealElement('h3', 'Ingredients'));
   const ingredients = mealElement('ul');
   recipe.ingredients.forEach((item) =>
