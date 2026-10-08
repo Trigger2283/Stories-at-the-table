@@ -1,0 +1,214 @@
+
+------------------
+I was using  VS coding, codex and chatgpt as tools
+
+PROMPTS
+=======
+
+01.
+I want to create a new project. It has something in common with the previous
+After Hours project, but this time the website will focus more on cooking.
+My current idea is to let users learn about the history of food and how to cook
+it, while optionally choosing whether to have the website help order the
+ingredients. Would this be very complicated? I also want to use Render for the
+backend, as we did last time, but I am wondering whether I need multiple APIs.
+
+02.
+Don't I need to call the OpenAI API so that users can chat?
+
+03.
+Okay, let's set the difficult parts aside for now. As you described it, the
+feature would help users order ingredients, right? Would there be a problem
+if I implemented that part last, or do all the parts have to be implemented
+together?
+
+04.
+Okay, can you guide me through this project step by step, as you did last time?
+
+05.
+I think I would still like the main focus to be browsing dishes and stories,
+with a chatbot that users can consult at any time as an additional feature.
+
+06.
+Could you please make it bilingual in Chinese and English?
+
+07.
+Let's connect the chatbot first, still using the OpenAI API and Render as the
+backend.
+
+08.
+Are these settings correct?
+[Screenshot attached: GitHub's Create a new repository page. The repository
+name is Stories-at-the-table under Trigger2283. Public visibility is selected;
+README is off, with no .gitignore template or license selected.]
+
+09.
+I have successfully uploaded the files. Could you check whether this looks
+right, and then can we start the next step?
+[Screenshot attached: the public Stories-at-the-table GitHub repository, with
+the uploaded website and backend files, tests, recipes.json, requirements.txt,
+render.yaml, and the project README visible.]
+
+10.
+[Image-only user message; no typed text.]
+[Screenshot attached: Render's Git Provider repository selector shows no
+results for Trigger2283/Stories-at-the-table.]
+
+11.
+[Image-only user message; no typed text.]
+[Screenshot attached: the same Render repository-selector issue, again showing
+no results for Trigger2283/Stories-at-the-table.]
+
+12.
+Okay, I had forgotten a step. It should work now.
+[Screenshot attached: Render's new web-service configuration for
+Stories-at-the-table, showing Python 3, the main branch, Oregon, an empty root
+directory, pip install -r requirements.txt as the build command, the start
+command field, and the Free compute selection.]
+
+13.
+I don't want to set a password. Is that okay?
+
+14.
+Why does this page show an empty list even though I have already created my
+API keys? The API key from last time has disappeared too.
+[Screenshot attached: the OpenAI platform API Keys page under Default project,
+showing 0 results and a Create new secret key button.]
+
+15.
+The model I am using is probably not gpt-4.1-mini. How can I confirm which model
+I am using?
+
+16.
+This should be set up now, right?
+[Screenshot attached: Render environment variables OPENAI_API_KEY and
+OPENAI_MODEL. The API key value is covered in red; the model value is
+gpt-6-luna. No secret value is transcribed here.]
+
+17.
+I don't need to configure the Advanced section, right?
+[Screenshot attached: Render's Advanced settings, including Secret Files,
+Health Check Path, Pre-Deploy Command, Auto-Deploy set to On Commit, and
+Build Filters.]
+
+18.
+Does this mean the deployment is okay? Shall I try it?
+[Screenshot attached: Render reports Deploy succeeded / Live. The logs show
+the service starting, successful requests, and the site's Render URL.]
+
+19.
+Does this mean the deployment is okay? Shall I try it?
+[Screenshot attached: the same deployment-success screen and logs. This
+repeated prompt is preserved intentionally.]
+
+20.
+It is usable now. Could you organize the code formatting so that it will be
+easier for people to edit manually in the future and more readable?
+
+21.
+What is causing this?
+[Screenshot attached: the Kitchen assistant panel shows the message,
+"Open the site through Flask or its Render URL to chat, rather than as a
+local file." The selected recipe is Tomato & egg stir-fry, and the question
+in the input is "What if I have no tomatoes?"]
+
+22.
+What is causing this?
+[Screenshot attached: the same Kitchen assistant local-file warning and
+question. This repeated prompt is preserved intentionally.]
+
+23.
+Let's continue working on this assignment.
+
+24.
+Now let's connect some databases. I think I need an API for recipes and another
+for food history, preferably free ones.
+
+25.
+Let's take them one at a time. First, let's analyze TheMealDB. If it cannot
+maintain a Chinese version, what should I do to keep the website bilingual
+in Chinese and English?
+
+26.
+I think the workload is quite large. Let's consider only an English version
+for now.
+
+27.
+Alternatively, users could translate recipes through the chatbot whenever
+they need to.
+
+28.
+Okay, let's connect this recipe API first. How should we do that?
+
+29.
+Let's break it down and do it step by step.
+
+30.
+I have completed this step: extract the update package, upload the files to
+the root of the Stories-at-the-table GitHub repository, overwrite the files
+with the same names, and keep the tests folder.
+
+31.
+This is what it looks like now.
+[Screenshot attached: the Render Deploys page shows the service as Live, but
+only one deployment is listed: version2, deployed five days earlier.]
+
+32.
+The deployment succeeded. What is the next step?
+
+33.
+Search works now, and recipes are appearing! However, after opening a recipe,
+users can only exit through the x in the upper-right corner. The x is not very
+noticeable. I would also like users to be able to exit the current recipe by
+clicking elsewhere outside the recipe.
+[Two screenshots attached: a grid of chicken recipe results and the Sticky
+Chicken recipe dialog, with its small upper-right close icon, ingredients,
+instructions, and the surrounding dimmed page visible.]
+
+34.
+Okay, next I want to add a new feature. I would like users to filter dishes
+by ingredients. I would also like them to enter the ingredients they already
+have in their ingredient inventory, or fridge, and use those to filter recipes.
+I want this inventory to persist, so that each time they reopen the website,
+it retains the ingredients they had left previously. Can this be implemented?
+
+35.
+Okay, please implement this feature using the browser's localStorage, and
+do not remove the existing features.
+
+36.
+The recording feature has been implemented. How do I use the feature that
+filters recipes based on the ingredients I already have?
+[Screenshot attached: My Fridge contains chicken (500g), salmon (500g),
+cream (150g), basil (10g), and cherry tomato (100g), with Edit and Remove
+buttons. The page still says recipe matching is coming next.]
+
+37.
+Okay, let's implement this part.
+
+38.
+I would now like this website to look good on mobile phones too. Can that be
+implemented?
+
+39.
+Will these changes affect the desktop layout?
+
+40.
+Okay, my next idea is that, once a user selects a recipe, there should be a
+button saying something like "Let's start cooking!" Then the steps should
+become individual cards. The first card would be shown to the player, with
+the remaining cards, or steps, stacked underneath. After completing a step,
+the user could swipe the card away to see the next step, or swipe back to
+review the previous step. At any point, the user should also be able to exit
+this card-based cooking interface through a clearly visible exit control in
+the upper-right corner. Can this be implemented?
+
+41.
+Okay, let's try it.
+
+42.
+It looks quite good. Now let's implement the animation part.
+
+43.
+I would like to change it to left-and-right swiping instead of up-and-down.
+
