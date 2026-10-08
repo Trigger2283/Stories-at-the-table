@@ -93,7 +93,7 @@ async function moveCookingStep(direction) {
         [
           { transform: draggedTransform, opacity: draggedOpacity },
           {
-            transform: `translateY(${direction > 0 ? '-64px' : '64px'}) rotate(${direction > 0 ? '-4deg' : '4deg'}) scale(.96)`,
+            transform: `translateX(${direction > 0 ? '-64px' : '64px'}) rotate(${direction > 0 ? '-4deg' : '4deg'}) scale(.96)`,
             opacity: 0,
           },
         ],
@@ -109,7 +109,7 @@ async function moveCookingStep(direction) {
     if (animate) {
       cardAnimation = cookingCard.animate(
         [
-          { transform: `translateY(${direction > 0 ? '32px' : '-32px'}) scale(.96)`, opacity: 0 },
+          { transform: `translateX(${direction > 0 ? '32px' : '-32px'}) scale(.96)`, opacity: 0 },
           { transform: 'none', opacity: 1 },
         ],
         { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' },
@@ -138,21 +138,21 @@ swipeHandle.addEventListener('pointerdown', (event) => {
 });
 swipeHandle.addEventListener('pointermove', (event) => {
   if (!cardDrag || cardDrag.id !== event.pointerId) return;
-  cardDrag.delta = event.clientY - cardDrag.y;
-  if (Math.abs(event.clientX - cardDrag.x) > Math.abs(cardDrag.delta)) return;
+  cardDrag.delta = event.clientX - cardDrag.x;
+  if (Math.abs(event.clientY - cardDrag.y) > Math.abs(cardDrag.delta)) return;
   if (!reduceCookingMotion()) {
     const offset = Math.max(-100, Math.min(100, cardDrag.delta));
-    cookingCard.style.transform = `translateY(${offset}px) rotate(${offset / 35}deg)`;
+    cookingCard.style.transform = `translateX(${offset}px) rotate(${offset / 35}deg)`;
     cookingCard.style.opacity = String(1 - Math.abs(offset) / 250);
   }
 });
 swipeHandle.addEventListener('pointerup', (event) => {
   if (!cardDrag || cardDrag.id !== event.pointerId) return;
-  const delta = event.clientY - cardDrag.y;
-  const vertical = Math.abs(delta) > Math.abs(event.clientX - cardDrag.x) * 1.25;
+  const delta = event.clientX - cardDrag.x;
+  const horizontal = Math.abs(delta) > Math.abs(event.clientY - cardDrag.y) * 1.25;
   const direction = delta < 0 ? 1 : -1;
   const next = cookingIndex + direction;
-  if (vertical && Math.abs(delta) >= 55 && next >= 0 && next <= activeCookingSteps.length) {
+  if (horizontal && Math.abs(delta) >= 55 && next >= 0 && next <= activeCookingSteps.length) {
     moveCookingStep(direction);
   } else {
     resetCardDrag();
