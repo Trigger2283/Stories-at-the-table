@@ -25,7 +25,8 @@ function fixture() {
         return this.nodes.get(selector);
       },
       addEventListener(name, fn) {
-        this[name] = fn;
+        if (name === 'close') this.closeEvent = fn;
+        else this[name] = fn;
       },
       setAttribute(name, value) {
         this.attributes[name] = value;
@@ -48,6 +49,7 @@ function fixture() {
       },
       close() {
         this.open = false;
+        this.closeEvent?.();
       },
     };
   }
@@ -105,6 +107,7 @@ function fixture() {
       return { ok: true, json: async () => ({ reply: 'A real-shaped test reply.' }) };
     },
   });
+  vm.runInContext(fs.readFileSync(path.join(root, 'cooking.js'), 'utf8'), context);
   vm.runInContext(source, context);
   vm.runInContext(fs.readFileSync(path.join(root, 'mealdb.js'), 'utf8'), context);
   return {
@@ -125,6 +128,23 @@ async function run() {
   const f = fixture();
   const q = (selector) => f.document.querySelector(selector);
   assert.equal(f.document.documentElement.lang, 'en');
+  const dialog = q('#dish-dialog');
+  dialog.getBoundingClientRect = () => ({ left: 100, right: 500, top: 100, bottom: 600 });
+  const outside = { target: dialog, clientX: 50, clientY: 200 };
+  const inside = { target: dialog, clientX: 200, clientY: 200 };
+  dialog.showModal();
+  dialog.pointerdown(inside);
+  dialog.click(inside);
+  assert.equal(dialog.open, true, 'Dialog padding clicks must not close the recipe');
+  dialog.pointerdown(inside);
+  dialog.click(outside);
+  assert.equal(dialog.open, true, 'Dragging from inside to outside must not close');
+  dialog.pointerdown(outside);
+  dialog.click(outside);
+  assert.equal(dialog.open, false, 'Backdrop click closes the recipe');
+  dialog.showModal();
+  q('#close-detail').click();
+  assert.equal(dialog.open, false, 'Visible close button still works');
   assert(f.labels.every((label) => typeof label.textContent === 'string'));
   assert(f.aria.every((label) => typeof label.attributes['aria-label'] === 'string'));
   const recipe = {

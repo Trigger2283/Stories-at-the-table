@@ -45,7 +45,7 @@ class ChatTests(unittest.TestCase):
         return self.client.post("/api/chat", json=body, headers=headers)
 
     def test_site_assets_and_private_file_isolation(self):
-        for path in ["/", "/app.js", "/styles.css", "/chat.css", "/config.js"]:
+        for path in ["/", "/app.js", "/styles.css", "/chat.css", "/config.js", "/fridge.js"]:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
