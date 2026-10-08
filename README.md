@@ -1,60 +1,80 @@
-# 一餐一故事 / Stories at the Table
+# Stories at the Table
 
-以菜肴和故事为主的中英文网站，右下角厨房助手通过 Flask 后端调用 OpenAI Responses API。前端与后端可部署在同一个 Render Web Service，直接访问服务网址即可浏览和聊天。
+A cooking website for finding recipes, keeping track of ingredients, and following recipes one step at a time. The interface is currently in English. A kitchen chatbot can answer questions or translate a selected recipe into Chinese or another language.
 
-## 目前完成
+Built with HTML, CSS, JavaScript, and a Python Flask backend hosted on Render.
 
-### TheMealDB 菜谱接入
+## APIs and storage
 
-首页新增独立的英文菜谱搜索区，搜索 chicken、pasta 或 Arrabiata，最多显示 24 条结果。点击 View recipe 查看图片、食材和原始步骤。Ask about this recipe 和 Translate this recipe 会打开聊天并填入问题，用户点击发送后才调用模型、产生费用。
-
-界面默认英文，暂时隐藏语言切换；原中文示例数据保留。外部菜谱没有历史故事、可靠的耗时或份数时不自行补造。
-
-- `mealdb.py`：固定地址访问 TheMealDB，10 秒上游超时，15 分钟内存缓存（最多 128 项，重启清空，不是数据库）。
-- `mealdb.js`：搜索与详情 UI；外部文本通过 textContent 展示。
-- `GET /api/recipes?q=pasta`：按英文菜名搜索。
-- `GET /api/recipes/mealdb-52771`：按 ID 查询。
-- 聊天只提交菜谱 ID，后端重新获取可信来源的菜谱作为上下文，不接受前端自编菜谱。
-
-使用官方教育/开发测试 Key `1`，无需新增环境变量或依赖。适用于当前作业；正式商业发布前重新核对 [TheMealDB 使用说明](https://www.themealdb.com/api.php)。来源链接显示在详情中。
-
-部署时请同时上传新文件 `mealdb.py` 和 `mealdb.js`，以及更新后的 `app.py`、`app.js`、`index.html`、`styles.css`。Render 构建、启动命令和 OpenAI 环境变量无需更改。必须通过 Flask/Render 网址访问，不能双击 HTML 使用搜索。
-
-- 三道示例菜、分类筛选、故事和菜谱详情。
-- 中英文切换和语言偏好记忆。
-- 实际聊天请求、最近五轮对话上下文、当前菜谱、等待状态、新对话。
-- 错误提示、失败时保留问题、禁止重复发送、请求超时。
-- 服务器读取 API Key；用户打开页面即可聊天，无需访问口令。
-
-故事是编辑方向示例，并非核实后的历史资料。助手知道这一点，不应将这些内容描述成已核实历史。当前没有联网搜索或购物功能。插画使用 emoji；Google Fonts 不可用时使用本地字体。
-
-## 人工维护与代码格式
-
-| 想修改的内容 | 对应文件 |
+| Service | What it does |
 | --- | --- |
-| 页面结构、导航、聊天入口 | `index.html` |
-| 主题颜色、卡片、移动端布局 | `styles.css` |
-| 聊天面板与等待、错误提示样式 | `chat.css` |
-| 菜谱展示、双语文案、筛选和聊天请求 | `app.js`，按编号注释分区 |
-| 助手性格、回答规则、后端校验 | `app.py` 的 `INSTRUCTIONS` 和 `chat()` |
-| 服务器使用的中英文菜谱目录 | `recipes.json`，修改时与 `app.js` 保持一致 |
-| 分离部署时的后端地址 | `config.js` |
-| 实际使用的模型和 API Key | Render 的 Environment；本地为 `.env` |
+| [TheMealDB API](https://www.themealdb.com/api.php) | Provides recipe names, photos, ingredients, and instructions. This project uses the development/educational test key `1`. Review its terms before a different kind of release. |
+| [OpenAI Responses API](https://developers.openai.com/api/docs/guides/text) | Powers the kitchen chatbot and translation. Requires your own API key and available API credit. |
+| Browser `localStorage` | Saves fridge ingredients in the same browser. It is not an online database. |
 
-HTML、CSS 和 JavaScript 使用两空格缩进，Python 使用四空格缩进。各个菜谱字段、样式属性和控制流程展开书写；动态生成的卡片和详情 HTML 使用多行模板，方便逐段修改。
+Render hosts the website and backend. There is no food-history API or ingredient-ordering service connected yet.
 
-`.editorconfig` 统一缩进、UTF-8 和换行。`.prettierrc.json` 用于前端格式化，`ruff.toml` 用于 Python 格式化；它们仅用于开发，不改变 Render 的运行方式。编辑器中可使用 Prettier 和 Ruff 的格式化功能，或安装工具后在本目录运行：
+## How to use the website
 
-```powershell
-npx prettier --write index.html app.js config.js styles.css chat.css recipes.json tests/test_frontend.cjs
-ruff format app.py tests/test_backend.py
-```
+### Browse or search for recipes
 
-本次整理保留现有文件入口和接口。上传整理版后，Render 的构建命令、启动命令以及模型环境变量均可沿用。
+- Browse the three sample dishes. Their category buttons filter these sample dishes only.
+- In **Explore recipes from TheMealDB**, enter an English recipe name, such as `chicken`, `pasta`, or `Arrabiata`.
+- Click **Search recipes**, then **View recipe** to see ingredients, instructions, and source links.
+- Close the recipe with **Close recipe**, click the dimmed area outside it, or press `Esc`.
 
-## 本地运行
+Search shows up to 24 results. Sample food stories are editorial examples, not verified historical research. External recipes do not include verified food history.
 
-在 `cooking-story` 目录打开终端：
+### Manage My Fridge
+
+1. Enter an English ingredient name, such as `chicken` or `eggs`.
+2. Optionally enter an amount, such as `500 g` or `3`.
+3. Click **Add / update**.
+4. Use **Edit** to change an amount, or **Remove** when an ingredient runs out.
+
+Adding an existing ingredient with a new amount updates it instead of creating a duplicate. Names ignore capitalization and extra spaces. To rename an ingredient, remove the old entry and add the new one.
+
+Your fridge holds up to 100 ingredients. It survives refreshes and reopening the same site in the same browser, but does not sync across devices or browsers. Clearing site data removes it; private browsing may not retain it. If saving is unavailable, the page warns that changes are kept only for the current visit.
+
+### Find recipes using your fridge
+
+1. Add your ingredients to **My Fridge**.
+2. Click **Find recipes with my ingredients**.
+3. Check **You have** and **Still needed** on each result.
+4. Click **View recipe** to open a suggestion.
+
+Recipes with fewer missing ingredients appear first. Matching checks ingredient names, **not whether your quantities are sufficient**. Salt and oil count as missing unless you add them. Some equivalent names, such as `egg` and `eggs`, are recognized; different meat cuts or ingredient types are not automatically substitutes.
+
+This is a limited search: the first five distinct fridge ingredients discover candidates, then all fridge ingredients are compared with up to 12 recipes. It does not search the entire recipe database. The page identifies the discovery ingredients and warns about partial results. Changing your fridge clears old results; click the button again for new suggestions.
+
+### Cook with step cards
+
+1. Open a recipe and click **Let's cook!**.
+2. Read the current step. Long instructions scroll inside the card.
+3. Click **Next step** or **Previous**, or use the keyboard's right/left arrow keys.
+4. Alternatively, drag the **Swipe** area at the top of the card: **left for next, right for previous**. Use your finger on a phone or the mouse on a computer.
+5. Click **Finish** on the last step to see the completion card.
+6. Click **Exit cooking** or press `Esc` to return to the recipe.
+
+Cards animate sideways. Reduced-motion settings disable the animation. Cooking mode does not run timers, confirm that food is cooked, deduct ingredients, or save progress. Starting again begins at step one. Follow the original recipe and check food safety before serving.
+
+### Ask the kitchen assistant or translate a recipe
+
+- Open **Kitchen assistant** to ask cooking questions or discuss substitutions.
+- In an external recipe, click **Ask about this recipe** to prepare a question about the selected dish.
+- Click **Translate this recipe** to prepare a Chinese translation request. Edit the request if you want another language.
+- Click the send arrow to submit it. These shortcut buttons do not send automatically.
+- Use **New chat** to clear the conversation and selected recipe context.
+
+The backend supplies the selected recipe to the chatbot. Chat history clears on refresh. Replies can be inaccurate, so check important quantities and safety advice. Requests use the website owner's OpenAI API credit; visitors do not need their own key or a password.
+
+### Use it on a phone
+
+The layout adapts to smaller screens with single-column cards, stacked forms, larger controls, and a mobile chat panel. Open the same website URL on your phone; no separate app is needed.
+
+## Run locally
+
+You need Python and the project files. In PowerShell, open the `cooking-story` folder and run:
 
 ```powershell
 python -m venv .venv
@@ -62,82 +82,62 @@ python -m venv .venv
 Copy-Item .env.example .env
 ```
 
-在本地 `.env` 中填写真实 `OPENAI_API_KEY`。不要将真实密钥粘贴到聊天中或写入前端文件。
+If `.env` already exists, keep it instead of copying over it. Put your OpenAI settings in `.env`:
+
+```text
+OPENAI_API_KEY=your-real-api-key
+OPENAI_MODEL=your-supported-model-id
+```
+
+Use a model available to your API project. Then start Flask:
 
 ```powershell
 .\.venv\Scripts\python.exe app.py
 ```
 
-访问 `http://127.0.0.1:5001`，展开厨房助手即可发送问题。
+Open **http://127.0.0.1:5001**. Without an OpenAI key, browsing, fridge storage, recipe search, and cooking mode still work; chat does not. Recipe search and matching need internet access.
 
-双击 `index.html` 仍可查看页面，但聊天需要通过 Flask/Render 的网址打开。单独运行 `python -m http.server` 不会提供聊天接口。
+**Do not double-click `index.html` for normal use.** Search, matching, and chat need Flask. Never put your real API key in frontend files or upload `.env` to GitHub.
 
-## Render 部署：新建独立服务
+## Deploy or update on Render
 
-推荐将本目录的项目文件上传到新的 GitHub 仓库根目录，例如 `stories-at-the-table`。必须包含 `app.py`、`index.html`、`recipes.json`、两个 CSS 文件、两个 JS 文件、`requirements.txt` 和 `.python-version`。不要上传 `.env`、`.venv`、`__pycache__` 或 `.tools`。
+1. Upload the contents of `cooking-story` to your GitHub repository root, including all Python, JavaScript, CSS, HTML, JSON, and deployment files. Keep `tests`. Do not upload `.env`, `.venv`, `.tools`, or `__pycache__`.
+2. Connect the repository to a Render **Python Web Service**.
+3. Use these settings:
 
-在 Render 选择 **New → Web Service**，连接新仓库：
-
-| 设置 | 值 |
+| Setting | Value |
 | --- | --- |
-| Name | `stories-at-the-table`，或自己喜欢的名称 |
-| Language | Python 3 |
-| Root Directory | 留空：如果本目录内容位于新仓库根目录 |
+| Root Directory | Leave blank when project files are at the repository root |
 | Build Command | `pip install -r requirements.txt` |
 | Start Command | `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 90` |
 | Health Check Path | `/health` |
 
-如果上传的是包含 After Hours 的整个现有目录，则新服务的 Root Directory 要填写 `cooking-story`。建议用新仓库，避免两项目的自动部署混在一起。
+4. Set `OPENAI_API_KEY` and `OPENAI_MODEL` in Render's **Environment**. Keep existing working values when updating. Render supplies `PORT`.
+5. Deploy and open the service URL. For updates, commit changed files to GitHub and check the new deployment; use **Manual Deploy → Deploy latest commit** if needed.
 
-在 Environment 设置：
+The default setup serves frontend and backend together. Leave `config.js`'s `apiBaseUrl` empty. If your repository contains the whole parent workspace, set Root Directory to `cooking-story` instead.
 
-| 变量 | 值 |
+## Main files
+
+| Files | Purpose |
 | --- | --- |
-| `OPENAI_API_KEY` | 你的 OpenAI 项目 API Key，账户需有可用额度 |
-| `OPENAI_MODEL` | 默认 `gpt-4.1-mini`；也可填写账户可使用的其他 Responses API 模型 |
+| `index.html`, `styles.css` | Page structure and responsive layout |
+| `app.js`, `recipes.json` | Sample recipes and page/chat behavior; keep sample data consistent |
+| `app.py` | Flask routes and OpenAI chat requests |
+| `mealdb.py`, `mealdb.js` | Recipe requests, search, and details |
+| `fridge.js`, `fridge_match.py` | Fridge storage and recipe matching |
+| `cooking.js`, `cooking.css` | Step cards, gestures, and animations |
+| `chat.css`, `config.js` | Chat styles and optional separate backend URL |
 
-`PORT` 由 Render 提供，不要复制 `.env.example` 中的本地端口。默认同一服务提供前端和后端，不需要填写 `FRONTEND_ORIGINS`。
+## Tests (optional)
 
-`render.yaml` 也可用于 Blueprint 部署，适用于将本目录内容作为新仓库根目录的情况。API Key 需要在 Render 中填写。
-
-## 部署后的检查
-
-1. 打开 Render 分配的服务网址，应看到双语首页。
-2. 访问 `/health`：`status: ok` 表示服务存活；`chat_configured: true` 只表示已配置密钥，不验证密钥或额度。
-3. 打开厨房助手，问一个简单问题，确认真实 AI 回复。
-4. 打开番茄炒蛋，点击“问问这道菜的做法”，询问鸡蛋用量，再追问替代食材。
-5. 切换 English 并测试英文问题。
-
-Render 免费服务唤醒可能需要等待；前端显示等待状态。聊天公开开放，所有聊天请求的 API 费用由网站配置的 OpenAI 账户承担。
-
-## 从原来的口令版本更新
-
-在 GitHub 上传新版文件并覆盖同名文件，然后提交。前端 `index.html`、`app.js` 与后端 `app.py` 必须一起更新。Render 环境变量只需 `OPENAI_API_KEY` 和 `OPENAI_MODEL`，可以删除旧的 `CHAT_PASSWORD`。如果尚未创建 Render 服务，先上传更新再部署；如果已经创建，使用最新提交重新部署。
-
-## 以后将前端放到 GitHub Pages
-
-修改公开的 `config.js` 中 `apiBaseUrl` 为 Render 后端地址，例如 `https://YOUR-SERVICE.onrender.com`。在 Render 的 `FRONTEND_ORIGINS` 中设置实际前端来源，例如 `https://YOUR-USERNAME.github.io`，不带仓库路径。本地文件的 `null` 来源不受支持，请用 HTTP 服务预览。
-
-## 数据与对话
-
-- `recipes.json` 是服务器使用的可信菜谱目录，客户端只发送菜谱 ID。当前 `app.js` 保留相同的本地展示数据；修改菜谱时同时更新，测试会核对一致性。
-- 浏览器仅在当前页面保存对话，刷新或“新对话”后清空；发送时最多包含五轮完整问答加当前问题，并限制总字符数。
-- 请求使用 `store=False`，未创建 OpenAI Conversations 对象；这不等于完全没有提供商日志，数据政策见官方文档。
-- 模型回复和用户文字均通过 `textContent` 显示，不会作为 HTML 执行。
-
-## 测试
+With Python dependencies installed and Node.js available, run from this folder:
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 node tests/test_frontend.cjs
+node tests/test_fridge.cjs
+node tests/test_cooking.cjs
 ```
 
-测试模拟 OpenAI 返回值，不产生 API 消费。真实联网、模型权限、额度和 Render 部署需要通过实际聊天验证。
-
-## 官方参考
-
-- [OpenAI 文本生成与 Responses API](https://developers.openai.com/api/docs/guides/text)
-- [OpenAI 对话上下文](https://developers.openai.com/api/docs/guides/conversation-state)
-- [OpenAI API 数据政策](https://developers.openai.com/api/docs/guides/your-data)
-- [Render Flask 部署](https://render.com/docs/deploy-flask)
-- [Render 子目录部署](https://render.com/docs/monorepo-support)
+These tests mock external services and do not make paid model calls. The optional `tests/check_mobile_layout.py` browser check also requires Playwright and local Chrome. Verify real API credentials and the deployed website separately.
