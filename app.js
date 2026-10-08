@@ -420,8 +420,10 @@ function renderDetail() {
       </section>
     </div>
 
+    <button id="start-cooking" class="button" type="button">Let’s cook!</button>
     <button id="ask-dish" class="button" style="border:0">${t('askDish')}</button>
   `;
+  document.querySelector('#start-cooking').addEventListener('click', () => startCooking(dish));
   document.querySelector('#ask-dish').addEventListener('click', () => {
     detailDialog.close();
     openChat();

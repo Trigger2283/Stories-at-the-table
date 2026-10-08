@@ -68,6 +68,13 @@ function renderExternalDetail(recipe) {
   if (!recipe.steps.length)
     detail.append(mealElement('p', 'Instructions are not available. Please check the source.'));
   const ask = mealElement('button', 'Ask about this recipe', 'button');
+  const cook = mealElement('button', 'Let’s cook!', 'button');
+  cook.id = 'start-cooking';
+  cook.type = 'button';
+  cook.disabled = cookingSteps(recipe.steps).length === 0;
+  if (cook.disabled) cook.title = 'Cooking instructions are not available.';
+  cook.addEventListener('click', () => startCooking(recipe));
+  detail.append(cook);
   const translate = mealElement('button', 'Translate this recipe', 'button');
   ask.type = translate.type = 'button';
   function promptChat(text) {

@@ -6,7 +6,9 @@
     <title>一餐一故事 · 厨房里的小旅行</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="chat.css" />
+    <link rel="stylesheet" href="cooking.css" />
     <script src="config.js" defer></script>
+    <script src="cooking.js" defer></script>
     <script src="app.js" defer></script>
     <script src="mealdb.js" defer></script>
     <script src="fridge.js" defer></script>
@@ -163,6 +165,35 @@
         </button>
       </div>
       <div id="dish-detail"></div>
+    </dialog>
+    <dialog id="cooking-dialog" aria-labelledby="cooking-title">
+      <div class="cooking-shell">
+        <header class="cooking-header">
+          <div>
+            <p class="eyebrow">LET’S COOK</p>
+            <h2 id="cooking-title"></h2>
+          </div>
+          <button type="button" id="exit-cooking">
+            <span aria-hidden="true">×</span>
+            Exit cooking
+          </button>
+        </header>
+        <p id="cooking-progress" role="status" aria-live="polite"></p>
+        <div class="cooking-stack">
+          <article id="cooking-card" aria-labelledby="cooking-step-title">
+            <h3 id="cooking-step-title" tabindex="-1"></h3>
+            <div class="cooking-card-scroll"><p id="cooking-step-text"></p></div>
+          </article>
+        </div>
+        <nav class="cooking-controls" aria-label="Cooking steps">
+          <button type="button" id="cooking-previous">← Previous</button>
+          <button type="button" id="cooking-next">Next step →</button>
+        </nav>
+        <p class="cooking-note">
+          Follow the recipe’s timings and food-safety guidance. Moving to the next card does not
+          confirm that food is cooked. Your fridge inventory will not be deducted.
+        </p>
+      </div>
     </dialog>
     <button
       id="chat-toggle"

@@ -21,7 +21,16 @@ RECIPES = {
     recipe["id"]: recipe
     for recipe in json.loads((ROOT / "recipes.json").read_text(encoding="utf-8"))
 }
-PUBLIC_FILES = {"styles.css", "chat.css", "app.js", "config.js", "mealdb.js", "fridge.js"}
+PUBLIC_FILES = {
+    "styles.css",
+    "chat.css",
+    "cooking.css",
+    "app.js",
+    "config.js",
+    "mealdb.js",
+    "fridge.js",
+    "cooking.js",
+}
 EXTRA_ORIGINS = [
     origin.strip().rstrip("/")
     for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
