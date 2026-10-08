@@ -115,9 +115,18 @@
       <span data-i18n="footerNote">第一阶段原型 · 故事与菜谱为示例内容，历史资料待核实补充</span>
     </footer>
     <dialog id="dish-dialog" aria-labelledby="detail-title">
-      <button class="close" id="close-detail" data-i18n-aria="closeRecipe" aria-label="关闭菜谱">
-        ×
-      </button>
+      <div class="recipe-dialog-toolbar">
+        <button
+          type="button"
+          class="close"
+          id="close-detail"
+          data-i18n-aria="closeRecipe"
+          aria-label="关闭菜谱"
+        >
+          <span aria-hidden="true">×</span>
+          <span data-i18n="closeRecipe">Close recipe</span>
+        </button>
+      </div>
       <div id="dish-detail"></div>
     </dialog>
     <button

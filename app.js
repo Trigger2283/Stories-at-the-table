@@ -430,6 +430,29 @@ function renderDetail() {
   });
 }
 document.querySelector('#close-detail').addEventListener('click', () => detailDialog.close());
+// Native dialog backdrop events target the dialog, as do clicks on its padding.
+// Check coordinates too, so clicks inside the recipe or on its scrollbar stay open.
+function isOutsideRecipe(event) {
+  if (event.target !== detailDialog) return false;
+  const bounds = detailDialog.getBoundingClientRect();
+  return (
+    event.clientX < bounds.left ||
+    event.clientX > bounds.right ||
+    event.clientY < bounds.top ||
+    event.clientY > bounds.bottom
+  );
+}
+let recipePointerStartedOutside = false;
+detailDialog.addEventListener('pointerdown', (event) => {
+  recipePointerStartedOutside = isOutsideRecipe(event);
+});
+detailDialog.addEventListener('click', (event) => {
+  if (recipePointerStartedOutside && isOutsideRecipe(event)) detailDialog.close();
+  recipePointerStartedOutside = false;
+});
+detailDialog.addEventListener('close', () => {
+  recipePointerStartedOutside = false;
+});
 // 5. 助手面板：展开、关闭与快捷提问。
 const panel = document.querySelector('#chat-panel');
 const toggle = document.querySelector('#chat-toggle');
