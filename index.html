@@ -9,6 +9,7 @@
     <script src="config.js" defer></script>
     <script src="app.js" defer></script>
     <script src="mealdb.js" defer></script>
+    <script src="fridge.js" defer></script>
   </head>
   <body>
     <header class="site-header">
@@ -77,6 +78,30 @@
           </button>
         </div>
         <div id="dish-grid" class="dish-grid"></div>
+        <section class="fridge" aria-labelledby="fridge-title">
+          <p class="eyebrow">YOUR KITCHEN INVENTORY</p>
+          <h2 id="fridge-title">My Fridge</h2>
+          <p>Add what you already have. Use English ingredient names for future recipe matching.</p>
+          <form id="fridge-form">
+            <div>
+              <label for="fridge-name">Ingredient</label>
+              <input id="fridge-name" maxlength="60" required placeholder="e.g. chicken" />
+            </div>
+            <div>
+              <label for="fridge-amount">Amount (optional)</label>
+              <input id="fridge-amount" maxlength="40" placeholder="e.g. 500 g or 3 eggs" />
+            </div>
+            <button type="submit" class="button">Add / update</button>
+          </form>
+          <p id="fridge-status" role="status" aria-live="polite"></p>
+          <p id="fridge-empty">Your fridge is empty. Add your first ingredient above.</p>
+          <ul id="fridge-list" aria-label="Saved ingredients"></ul>
+          <p class="fridge-note">
+            Saved only in this browser on this website. Clearing site data removes your fridge;
+            private browsing may not retain it. Update amounts manually after cooking. Recipe
+            matching is coming next.
+          </p>
+        </section>
         <section class="recipe-search" aria-labelledby="recipe-search-title">
           <h2 id="recipe-search-title">Explore recipes from TheMealDB</h2>
           <p>Search by an English dish name, such as chicken, pasta or Arrabiata.</p>

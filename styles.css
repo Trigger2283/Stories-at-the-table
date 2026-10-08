@@ -353,6 +353,74 @@ footer span {
   color: var(--muted);
 }
 /* 5. 菜谱详情弹窗。 */
+.fridge {
+  margin-top: 3rem;
+  padding: 24px;
+  background: #efeee4;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+#fridge-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+#fridge-form > div {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+#fridge-form label {
+  display: block;
+  margin-bottom: 8px;
+}
+#fridge-form input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+#fridge-list {
+  list-style: none;
+  padding: 0;
+}
+#fridge-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+#fridge-list li > span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+#fridge-list li > div {
+  display: flex;
+  gap: 8px;
+}
+#fridge-list button {
+  padding: 10px 14px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+#fridge-status {
+  min-height: 1.5em;
+}
+.fridge-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
 dialog {
   border: 0;
   border-radius: 12px;
