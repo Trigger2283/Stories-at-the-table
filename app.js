@@ -457,7 +457,25 @@ detailDialog.addEventListener('close', () => {
 const panel = document.querySelector('#chat-panel');
 const toggle = document.querySelector('#chat-toggle');
 
+// Mobile keyboards can shrink the visual viewport without changing layout height.
+// Track its usable space; CSS applies these values only on phone-sized screens.
+function syncChatViewport() {
+  const viewport = window.visualViewport;
+  if (!viewport) return;
+  panel.style.setProperty('--chat-viewport-height', `${viewport.height}px`);
+  panel.style.setProperty(
+    '--chat-viewport-bottom',
+    `${Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)}px`,
+  );
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', syncChatViewport);
+  window.visualViewport.addEventListener('scroll', syncChatViewport);
+  syncChatViewport();
+}
+
 function openChat() {
+  syncChatViewport();
   panel.hidden = false;
   toggle.setAttribute('aria-expanded', 'true');
   document.querySelector('#chat-input').focus();
